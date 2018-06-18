@@ -103,10 +103,12 @@ namespace _1sServerWidget
         {
             int i = 0;
             Array clusters = _serverAgent.GetClusters();
+
+            if (!UpdateOnlySeansInfo)
+                _updateStateEvents.CountCluster += clusters.Length;
+
             foreach (IClusterInfo clusterInfo in clusters)
             {
-                _updateStateEvents.FillStateCluster = $"Кластеры: {++i}/{clusters.Length}";
-
                 _serverAgent.Authenticate(clusterInfo, "", "");
 
                 if (!UpdateOnlySeansInfo)
@@ -115,19 +117,22 @@ namespace _1sServerWidget
                 GetInfoSessions(clusterInfo);
 
                 _updateSessionsInfoEvents.EvokeUpdateSessionsInfoEvent();
+
+                _updateStateEvents.ICluster++;
             }
             _updateStateEvents.ClearState();
         }
 
         private async Task FillInfoBasesAllWorkProcesses(IClusterInfo clusterInfo)
         {
-            int i = 0;
             Array workingProcesses = _serverAgent.GetWorkingProcesses(clusterInfo);
+
+            _updateStateEvents.CountWorkProcesses += workingProcesses.Length;
 
             List<Task> tasks = new List<Task>();
 
             foreach (IWorkingProcessInfo workProcess in workingProcesses)
-                tasks.Add(FillInfoBaseFromWorkProcessAsync(workProcess, $"Рабочие процессы: {++i}/{workingProcesses.Length}"));
+                tasks.Add(FillInfoBaseFromWorkProcessAsync(workProcess));
             
             await Task.WhenAll(tasks);
 
@@ -135,26 +140,25 @@ namespace _1sServerWidget
             {
                 foreach (Model.InfoBase itemResult in item.Result)
                 {
-                    Model.InfoBase infoBase = InfoBases.FirstOrDefault(f => f.NameToUpper == itemResult.NameToUpper);
-                    if (infoBase == null)
-                        InfoBases.Add(itemResult);
-                    else
+                    if (itemResult != null)
                     {
-                        infoBase.ConnectionCount += itemResult.ConnectionCount;
-                        infoBase.HaveAccess = itemResult.HaveAccess;
+                        Model.InfoBase infoBase = InfoBases.FirstOrDefault(f => f.NameToUpper == itemResult.NameToUpper);
+                        if (infoBase == null)
+                            InfoBases.Add(itemResult);
+                        else
+                        {
+                            infoBase.ConnectionCount += itemResult.ConnectionCount;
+                            infoBase.HaveAccess = itemResult.HaveAccess;
+                        }
                     }
                 }
             }
-
-            _updateStateEvents.FillStateWorkProcesses = string.Empty;
         }
 
-        private async Task<List<Model.InfoBase>> FillInfoBaseFromWorkProcessAsync(IWorkingProcessInfo workProcess, string textState)
+        private async Task<List<Model.InfoBase>> FillInfoBaseFromWorkProcessAsync(IWorkingProcessInfo workProcess)
         {
             return await Task.Run(() =>
             {
-                _updateStateEvents.FillStateWorkProcesses = textState;
-
                 IWorkingProcessConnection workingProcessConnection;
                 try
                 {
@@ -169,7 +173,11 @@ namespace _1sServerWidget
 
                 AddAuthentificationWorkingProcess(workingProcessConnection);
 
-                return FillInfoBaseFromWorkProcess(workingProcessConnection);
+                List<Model.InfoBase> list = FillInfoBaseFromWorkProcess(workingProcessConnection);
+
+                _updateStateEvents.IProcesses++;
+
+                return list;
             });
         }
 
@@ -177,23 +185,22 @@ namespace _1sServerWidget
         {
             List<Model.InfoBase> listInfoBasesTask = new List<Model.InfoBase>();
 
-            int i = 0;
             Array infoBases = workingProcessConnection.GetInfoBases();
+
+            _updateStateEvents.CountInfoBase += infoBases.Length;
             foreach (IInfoBaseInfo infoBaseInfo in infoBases)
             {
-                _updateStateEvents.FillStateInfoBase = $"Базы даных: {++i}/{infoBases.Length}";
-
-                if (_updateInfoBase && infoBaseInfo.Name.ToUpper() != InfoBaseUpdate.NameToUpper)
-                    continue;
-
-                if (_listNoAccessBase.FirstOrDefault(f => f.NameToUpper == infoBaseInfo.Name.ToUpper()) != null)
-                    continue;
-
-                IInfoBaseConnectionInfo infoBaseConnectionComConsole = FillInfoBase(workingProcessConnection, infoBaseInfo, listInfoBasesTask);
-                if (infoBaseConnectionComConsole != null)
-                    workingProcessConnection.Disconnect(infoBaseConnectionComConsole);
+                if (!_updateInfoBase || infoBaseInfo.Name.ToUpper() == InfoBaseUpdate.NameToUpper)
+                {
+                    if (_listNoAccessBase.FirstOrDefault(f => f.NameToUpper == infoBaseInfo.Name.ToUpper()) == null)
+                    {
+                        IInfoBaseConnectionInfo infoBaseConnectionComConsole = FillInfoBase(workingProcessConnection, infoBaseInfo, listInfoBasesTask);
+                        if (infoBaseConnectionComConsole != null)
+                            workingProcessConnection.Disconnect(infoBaseConnectionComConsole);
+                    }
+                }
+                _updateStateEvents.IInfoBase++;
             }
-            _updateStateEvents.FillStateInfoBase = string.Empty;
 
             return listInfoBasesTask;
         }
@@ -246,8 +253,6 @@ namespace _1sServerWidget
             Array sessions = _serverAgent.GetSessions(clusterInfo);
             foreach (ISessionInfo sessionInfo in sessions)
             {
-                _updateStateEvents.FillStateSession = $"Сеансы: {++j}/{sessions.Length}";
-
                 if (_updateInfoBase && sessionInfo.infoBase.Name.ToUpper() != InfoBaseUpdate.NameToUpper)
                     continue;
 
