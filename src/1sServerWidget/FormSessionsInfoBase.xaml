@@ -1,0 +1,87 @@
+﻿<Window x:Class="_1sServerWidget.FormSessionsInfoBase"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:_1sServerWidget"
+        mc:Ignorable="d" x:Name="WindowSessionInfoBase"
+        Background="Transparent" WindowStyle="None" ShowInTaskbar="False" Topmost="True" AllowsTransparency="True"
+        Title="Соединения информационной базы" Height="300" Width="500"
+        MouseLeftButtonDown="WindowSessionInfoBase_MouseLeftButtonDown"
+        Loaded="WindowSessionInfoBase_Loaded">
+    <Window.Resources>
+        <Style TargetType="{x:Type Button}" x:Key="ButtonBase">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <Border CornerRadius="6" Background="Yellow" BorderThickness="0">
+                            <ContentPresenter ContentTemplate="{TemplateBinding ContentTemplate}" Content="{TemplateBinding Content}" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="5" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+    <Border BorderThickness="1.5" CornerRadius="10" Background="LightGoldenrodYellow">
+        <Border.Style>
+            <Style TargetType="{x:Type Border}">
+                <Setter Property="Opacity" Value=".2"/>
+                <Style.Triggers>
+                    <EventTrigger RoutedEvent="MouseEnter" >
+                        <EventTrigger.Actions>
+                            <BeginStoryboard>
+                                <Storyboard>
+                                    <DoubleAnimation Storyboard.TargetProperty="Opacity" From=".2" To="1" Duration="0:0:0.30"/>
+                                </Storyboard>
+                            </BeginStoryboard>
+                        </EventTrigger.Actions>
+                    </EventTrigger>
+                    <EventTrigger RoutedEvent="MouseLeave">
+                        <EventTrigger.Actions>
+                            <BeginStoryboard>
+                                <Storyboard>
+                                    <DoubleAnimation Storyboard.TargetProperty="Opacity" From="1" To=".2" Duration="0:0:1.30"/>
+                                </Storyboard>
+                            </BeginStoryboard>
+                        </EventTrigger.Actions>
+                    </EventTrigger>
+                </Style.Triggers>
+            </Style>
+        </Border.Style>
+        <Grid Margin="2">
+            <StackPanel Orientation="Vertical">
+                <StackPanel Orientation="Horizontal">
+                    <Label Content="База данных"/>
+                    <Border CornerRadius="6" BorderBrush="Yellow" BorderThickness="1" Height="20">
+                        <TextBlock x:Name="TextBlockInfoBase" Margin="1" VerticalAlignment="Center" MinWidth="200" Text="{Binding InfoBase}"/>
+                    </Border>
+                    <!--<Separator Width="5" Background="{x:Null}"/>
+                    <Button x:Name="ButtonTerminateSession" Content="Отключить" Style="{StaticResource ButtonBase}" Click="ButtonTerminateSession_Click"/>-->
+                    <Separator Width="5" Background="{x:Null}"/>
+                    <Button x:Name="ButtonClose" Content="Закрыть" Style="{StaticResource ButtonBase}" Click="ButtonClose_Click"/>
+                </StackPanel>
+                <Grid Margin="5,1,5,0">
+                    <DataGrid x:Name="DataGridSessions" IsReadOnly="True" BorderThickness="0" AutoGenerateColumns="False" Background="Transparent" RowBackground="Transparent"
+                              CanUserResizeColumns="False" CanUserSortColumns="False" CanUserReorderColumns="False" CanUserResizeRows="False"
+                              Height="{Binding ElementName=WindowSessionInfoBase, Path=ActualHeight, Converter={local:ElementsFormConverter}, ConverterParameter=60}">
+                        <DataGrid.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem x:Name="MenuItemTerminateSession" Header="Отключить" Click="MenuItemTerminateSession_Click"/>
+                            </ContextMenu>
+                        </DataGrid.ContextMenu>
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Приложение" Binding="{Binding AppID}" MaxWidth="90"/>
+                            <DataGridTextColumn Header="№ сеанса" Binding="{Binding SessionID}" MaxWidth="70"/>
+                            <DataGridTextColumn Header="Пользователь" Binding="{Binding UserName}" MaxWidth="170"/>
+                            <DataGridTextColumn Header="Соединений" Binding="{Binding DbProcInfo}" MaxWidth="80"/>
+                            <DataGridTextColumn Header="Захвачено" Binding="{Binding DbProcTook}" MaxWidth="70"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+                <StackPanel Orientation="Horizontal" Visibility="Collapsed">
+                    <Label Content="Итоги:"/>
+                </StackPanel>
+            </StackPanel>
+        </Grid>
+    </Border>
+</Window>

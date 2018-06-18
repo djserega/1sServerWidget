@@ -1,0 +1,131 @@
+﻿<Window x:Class="_1sServerWidget.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:_1sServerWidget" ResizeMode="NoResize"
+        mc:Ignorable="d" WindowStyle="None" AllowsTransparency="True"
+        Title="MainWindow" Height="350" Width="560" Background="Transparent"
+        x:Name="FormMainWindow" ShowInTaskbar="False" Topmost="True"
+        MouseLeftButtonDown="FormMainWindow_MouseLeftButtonDown">
+    <Window.Resources>
+        <Style TargetType="{x:Type Button}" x:Key="ButtonBase">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <Border CornerRadius="6" Background="Yellow" BorderThickness="0">
+                            <ContentPresenter ContentTemplate="{TemplateBinding ContentTemplate}" Content="{TemplateBinding Content}" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="5" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style TargetType="{x:Type TextBox}" x:Key="TextBoxBase">
+            <Setter Property="Height" Value="20"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type TextBox}">
+                        <Border CornerRadius="6" BorderBrush="Yellow" BorderThickness="1">
+                            <TextBox HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="1" VerticalAlignment="Center" BorderThickness="0" Background="Transparent" Width="{TemplateBinding Width}" MinWidth="{TemplateBinding MinWidth}" MaxWidth="{TemplateBinding MaxWidth}" Text="{TemplateBinding Text}"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+    <Border BorderThickness="1.5" CornerRadius="10" Background="LightGoldenrodYellow">
+        <Border.Style>
+            <Style TargetType="{x:Type Border}">
+                <Setter Property="Opacity" Value=".2"/>
+                <Style.Triggers>
+                    <EventTrigger RoutedEvent="MouseEnter" >
+                        <EventTrigger.Actions>
+                            <BeginStoryboard>
+                                <Storyboard>
+                                    <DoubleAnimation Storyboard.TargetProperty="Opacity" From=".2" To="1" Duration="0:0:0.30"/>
+                                </Storyboard>
+                            </BeginStoryboard>
+                        </EventTrigger.Actions>
+                    </EventTrigger>
+                    <EventTrigger RoutedEvent="MouseLeave">
+                        <EventTrigger.Actions>
+                            <BeginStoryboard>
+                                <Storyboard>
+                                    <DoubleAnimation Storyboard.TargetProperty="Opacity" From="1" To=".2" Duration="0:0:1.30"/>
+                                </Storyboard>
+                            </BeginStoryboard>
+                        </EventTrigger.Actions>
+                    </EventTrigger>
+                </Style.Triggers>
+            </Style>
+        </Border.Style>
+        <Grid Background="Transparent">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="7"/>
+                <RowDefinition Height="25"/>
+                <RowDefinition Height="315*"/>
+                <RowDefinition Height="25"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="7"/>
+                <ColumnDefinition Width="520*"/>
+                <ColumnDefinition Width="25"/>
+                <ColumnDefinition Width="7"/>
+            </Grid.ColumnDefinitions>
+
+            <!--Column 1 Row 1-->
+            <StackPanel Orientation="Horizontal" Grid.Column="1" Grid.Row="1">
+                <Label Content="Адрес сервера:"/>
+                <Border x:Name="BorderServerName" CornerRadius="6" BorderBrush="Yellow" BorderThickness="1" Height="20">
+                    <TextBox x:Name="TextBoxServerName" Margin="1" VerticalAlignment="Center" BorderThickness="0" MinWidth="200" Background="Transparent" Text="{Binding ServerName}" 
+                                 TextChanged="TextBoxMinUpdateSession_TextChanged"/>
+                </Border>
+                <Separator Width="5" Background="{x:Null}"/>
+                <Button x:Name="ButtonConnect" Content="Подключиться" Style="{StaticResource ButtonBase}" Click="ButtonConnect_Click" Width="100"/>
+                <Separator Width="5" Background="{x:Null}"/>
+                <TextBlock x:Name="TextBlockLastUpdate" MinWidth="120" VerticalAlignment="Center" Text="{Binding LastUpdate}"/>
+            </StackPanel>
+            <!--Column 2 Row 1-->
+            <Button x:Name="ButtonClose" Content="X" Grid.Column="2" Grid.Row="1" Style="{StaticResource ButtonBase}"
+                Click="ButtonClose_Click"/>
+
+            <!--Column 1 ColumnSpan 2 Row 2-->
+            <StackPanel x:Name="StackPanelDataGrid" Orientation="Vertical" Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="2">
+                <Separator Width="1" Background="{x:Null}"/>
+                <DataGrid x:Name="DataGridListBase" IsReadOnly="True" BorderThickness="0"
+                          CanUserResizeColumns="False" CanUserSortColumns="False" CanUserReorderColumns="False" CanUserResizeRows="False"
+                          AutoGenerateColumns="False" Background="Transparent" RowBackground="Transparent"
+                          Height="{Binding ElementName=StackPanelDataGrid, Path=ActualHeight, Converter={local:ElementsFormConverter}, ConverterParameter=10}"
+                          MouseDoubleClick="DataGridListBase_MouseDoubleClick">
+                    <DataGrid.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem x:Name="MenuItemUpdateInfo" Header="Обновить информацию" Click="MenuItemUpdateInfo_Click"/>
+                            <MenuItem x:Name="MenuItemUpdateDbProcTook" Header="Обновить захвачено СУБД" Click="MenuItemUpdateDbProcTook_Click"/>
+                        </ContextMenu>
+                    </DataGrid.ContextMenu>
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Имя базы данных" Binding="{Binding Name}" Width="140"/>
+                        <DataGridTextColumn Header="Сеансов" Binding="{Binding ConnectionCount}" Width="60"/>
+                        <DataGridTextColumn Header="Соединений" Binding="{Binding SessionCount}" Width="90"/>
+                        <DataGridTextColumn Header="Соединений с СУБД" Binding="{Binding DbProcInfo}" Width="120"/>
+                        <DataGridTextColumn Header="Захвачено СУБД" Binding="{Binding DbProcTook}" Width="100"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </StackPanel>
+
+            <!--Column 1 ColumnSpan 2 Row 3-->
+            <StackPanel Orientation="Horizontal" Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="3">
+                <TextBlock x:Name="TextBlockState" Text="{Binding TextState}" VerticalAlignment="Center" MinWidth="320"/>
+                <StackPanel Orientation="Horizontal">
+                    <Label Content="Обновление данных сеансов:"/>
+                    <Border x:Name="BorderMinUpdateSession" CornerRadius="6" BorderBrush="Yellow" BorderThickness="1" Height="20">
+                        <TextBox x:Name="TextBoxMinUpdateSession" Margin="1" VerticalAlignment="Center" BorderThickness="0" MinWidth="25" Background="Transparent" Text="{Binding MinUpdateSession}" 
+                                 TextChanged="TextBoxMinUpdateSession_TextChanged"/>
+                    </Border>
+                    <Label Content="с."/>
+                </StackPanel>
+            </StackPanel>
+
+        </Grid>
+    </Border>
+</Window>
