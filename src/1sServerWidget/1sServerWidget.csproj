@@ -80,6 +80,7 @@
     <Compile Include="FormSessionsInfoBase.xaml.cs">
       <DependentUpon>FormSessionsInfoBase.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ListNoAccessBase.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>

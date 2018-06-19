@@ -10,8 +10,6 @@ namespace _1sServerWidget
 {
     internal class ConnectToAgent : IDisposable
     {
-        public static BlockingCollection<Model.InfoBase> _listNoAccessBase;
-
         private UpdateStateEvents _updateStateEvents;
         private UpdateSessionsInfoEvents _updateSessionsInfoEvents;
 
@@ -52,7 +50,7 @@ namespace _1sServerWidget
         {
             InitializeComConnector();
 
-            _listNoAccessBase = new BlockingCollection<Model.InfoBase>();
+            ListNoAccessBase.List.Clear();
 
             if (UpdateOnlySeansInfo)
                 for (int i = 0; i < InfoBases.Count; i++)
@@ -71,8 +69,6 @@ namespace _1sServerWidget
                 InfoBases.RemoveAll(f => !f.HaveAccess);
 
             InfoBases.Sort((a, b) => (b.NameToUpper.CompareTo(a.NameToUpper)));
-
-            _listNoAccessBase.Dispose();
         }
 
         internal void TerminateSessions(List<Model.Session> sessions)
@@ -223,11 +219,15 @@ namespace _1sServerWidget
             {
                 if (!_updateInfoBase || infoBaseInfo.Name.ToUpper() == InfoBaseUpdate.NameToUpper)
                 {
-                    if (_listNoAccessBase.FirstOrDefault(f => f.NameToUpper == infoBaseInfo.Name.ToUpper()) == null)
+                    if (ListNoAccessBase.ListName.FirstOrDefault(f => f == infoBaseInfo.Name.ToUpper()) == null)
                     {
                         IInfoBaseConnectionInfo infoBaseConnectionComConsole = FillInfoBase(workingProcessConnection, infoBaseInfo, listInfoBasesTask);
                         if (infoBaseConnectionComConsole != null)
                             workingProcessConnection.Disconnect(infoBaseConnectionComConsole);
+                    }
+                    else
+                    {
+                        int ddd = 2;
                     }
                 }
                 _updateStateEvents.IInfoBase++;
@@ -251,6 +251,9 @@ namespace _1sServerWidget
             }
             catch (Exception)
             {
+                if (ListNoAccessBase.ListName.FirstOrDefault(f => f == infoBaseInfo.Name.ToUpper()) == null)
+                    ListNoAccessBase.ListName.Add(infoBaseInfo.Name.ToUpper());
+
                 haveAccess = false;
             }
 
@@ -271,9 +274,6 @@ namespace _1sServerWidget
                 infoBase.ConnectionCount += connections;
                 infoBase.HaveAccess = haveAccess;
             }
-
-            if (!haveAccess)
-                _listNoAccessBase.Add(infoBase);
 
             return infoBaseConnectionComConsole;
         }
@@ -357,8 +357,7 @@ namespace _1sServerWidget
         {
             _serverAgent = null;
             _comConnector = null;
-            if (_listNoAccessBase != null)
-                _listNoAccessBase.Dispose();
+            ListNoAccessBase.List.Clear();
         }
     }
 }
