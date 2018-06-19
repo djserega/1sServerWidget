@@ -25,7 +25,7 @@ namespace _1sServerWidget
             return _instance ?? (_instance = new ElementsFormConverter());
         }
 
-        private Double ToDouble(object value)
+        private double ToDouble(object value)
         {
             return System.Convert.ToDouble(value);
         }
