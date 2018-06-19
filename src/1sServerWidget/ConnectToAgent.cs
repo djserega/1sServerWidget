@@ -4,18 +4,20 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Collections.Concurrent;
 
 namespace _1sServerWidget
 {
     internal class ConnectToAgent : IDisposable
     {
+        public static BlockingCollection<Model.InfoBase> _listNoAccessBase;
+
         private UpdateStateEvents _updateStateEvents;
         private UpdateSessionsInfoEvents _updateSessionsInfoEvents;
 
         private readonly string _serverName;
         private COMConnector _comConnector;
         private IServerAgentConnection _serverAgent;
-        private List<Model.InfoBase> _listNoAccessBase = new List<Model.InfoBase>();
         private bool _updateInfoBase;
         private List<Model.InfoBase> _infoBases = new List<Model.InfoBase>();
 
@@ -50,7 +52,7 @@ namespace _1sServerWidget
         {
             InitializeComConnector();
 
-            _listNoAccessBase.Clear();
+            _listNoAccessBase = new BlockingCollection<Model.InfoBase>();
 
             if (UpdateOnlySeansInfo)
                 for (int i = 0; i < InfoBases.Count; i++)
@@ -62,6 +64,8 @@ namespace _1sServerWidget
                 InfoBases.RemoveAll(f => !f.HaveAccess);
 
             InfoBases.Sort((a, b) => (b.NameToUpper.CompareTo(a.NameToUpper)));
+
+            _listNoAccessBase.Dispose();
         }
 
         internal void TerminateSessions(List<Model.Session> sessions)
@@ -71,28 +75,63 @@ namespace _1sServerWidget
             if (sessions.Count == 0)
                 return;
 
-            foreach (IClusterInfo itemClusterInfo in _serverAgent.GetClusters())
+            try
             {
-                _serverAgent.Authenticate(itemClusterInfo, "", "");
-
-                for (int i = 0; i < sessions.Count; i++)
+                foreach (IClusterInfo itemClusterInfo in _serverAgent.GetClusters())
                 {
-                    Model.Session elemetSession = sessions[i];
+                    _serverAgent.Authenticate(itemClusterInfo, "", "");
 
-                    foreach (ISessionInfo itemSessionInfo in _serverAgent.GetSessions(itemClusterInfo))
+                    for (int i = 0; i < sessions.Count; i++)
                     {
-                        if (itemSessionInfo.infoBase.Name == elemetSession.InfoBaseShort.Name
-                            && itemSessionInfo.SessionID == elemetSession.SessionID)
-                        {
-                            _serverAgent.TerminateSession(itemClusterInfo, itemSessionInfo);
-                            break;
-                        }
-                    }
-                    sessions.RemoveAt(i);
-                }
+                        Model.Session elemetSession = sessions[i];
 
-                if (sessions.Count == 0)
-                    break;
+                        // Disconnect
+                        //bool disconnected = false;
+                        //foreach (IWorkingProcessInfo itemWorkProcess in _serverAgent.GetWorkingProcesses(itemClusterInfo))
+                        //{
+                        //    IWorkingProcessConnection workingProcessConnection = GetWorkingProcessConnection(itemWorkProcess);
+                        //    foreach (IInfoBaseInfo itemInfoBaseInfo in workingProcessConnection.GetInfoBases())
+                        //    {
+                        //        if (itemInfoBaseInfo.Name.ToUpper() == elemetSession.InfoBaseShort.Name.ToUpper())
+                        //        {
+                        //            foreach (IInfoBaseConnectionInfo itemInfoBaseConnection in workingProcessConnection.GetInfoBaseConnections(itemInfoBaseInfo))
+                        //            {
+                        //                if (itemInfoBaseConnection.ConnID == elemetSession.ConnID)
+                        //                {
+                        //                    //workingProcessConnection.Disconnect(itemInfoBaseConnection);
+                        //                    //disconnected = true;
+                        //                    //break;
+                        //                }
+                        //            }
+                        //        }
+                        //        if (disconnected)
+                        //            break;
+                        //    }
+                        //    if (disconnected)
+                        //        break;
+                        //}
+
+                        // Terminate
+                        foreach (ISessionInfo itemSessionInfo in _serverAgent.GetSessions(itemClusterInfo))
+                        {
+                            if (itemSessionInfo.infoBase.Name == elemetSession.InfoBaseShort.Name
+                                && itemSessionInfo.SessionID == elemetSession.SessionID)
+                            {
+                                _serverAgent.TerminateSession(itemClusterInfo, itemSessionInfo);
+                                break;
+                            }
+                        }
+
+                        sessions.RemoveAt(i);
+                    }
+
+                    if (sessions.Count == 0)
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new TerminateSessionException(ex.Message);
             }
 
         }
@@ -101,7 +140,6 @@ namespace _1sServerWidget
 
         private async Task FillInfoBasesAllClusters()
         {
-            int i = 0;
             Array clusters = _serverAgent.GetClusters();
 
             if (!UpdateOnlySeansInfo)
@@ -133,7 +171,7 @@ namespace _1sServerWidget
 
             foreach (IWorkingProcessInfo workProcess in workingProcesses)
                 tasks.Add(FillInfoBaseFromWorkProcessAsync(workProcess));
-            
+
             await Task.WhenAll(tasks);
 
             foreach (Task<List<Model.InfoBase>> item in tasks)
@@ -159,21 +197,7 @@ namespace _1sServerWidget
         {
             return await Task.Run(() =>
             {
-                IWorkingProcessConnection workingProcessConnection;
-                try
-                {
-                    //workingProcessConnection = _comConnector.ConnectWorkingProcess($"{workProcess.HostName}:{workProcess.MainPort}");
-                    workingProcessConnection = _comConnector.ConnectWorkingProcess($"{_serverName}:{workProcess.MainPort}");
-                }
-                catch (Exception)
-                {
-                    //throw new WorkingProcessException(ex.Message);
-                    return null;
-                }
-
-                AddAuthentificationWorkingProcess(workingProcessConnection);
-
-                List<Model.InfoBase> list = FillInfoBaseFromWorkProcess(workingProcessConnection);
+                List<Model.InfoBase> list = FillInfoBaseFromWorkProcess(GetWorkingProcessConnection(workProcess));
 
                 _updateStateEvents.IProcesses++;
 
@@ -241,15 +265,14 @@ namespace _1sServerWidget
                 infoBase.HaveAccess = haveAccess;
             }
 
-            //if (!haveAccess)
-            //    _listNoAccessBase.Add(infoBase);
+            if (!haveAccess)
+                _listNoAccessBase.Add(infoBase);
 
             return infoBaseConnectionComConsole;
         }
 
         private void GetInfoSessions(IClusterInfo clusterInfo)
         {
-            int j = 0;
             Array sessions = _serverAgent.GetSessions(clusterInfo);
             foreach (ISessionInfo sessionInfo in sessions)
             {
@@ -272,6 +295,25 @@ namespace _1sServerWidget
         }
 
         #endregion
+
+        private IWorkingProcessConnection GetWorkingProcessConnection(IWorkingProcessInfo workProcess)
+        {
+            IWorkingProcessConnection workingProcessConnection;
+            try
+            {
+                //workingProcessConnection = _comConnector.ConnectWorkingProcess($"{workProcess.HostName}:{workProcess.MainPort}");
+                workingProcessConnection = _comConnector.ConnectWorkingProcess($"{_serverName}:{workProcess.MainPort}");
+            }
+            catch (Exception)
+            {
+                //throw new WorkingProcessException(ex.Message);
+                return null;
+            }
+
+            AddAuthentificationWorkingProcess(workingProcessConnection);
+
+            return workingProcessConnection;
+        }
 
         private void InitializeComConnector()
         {
@@ -308,7 +350,8 @@ namespace _1sServerWidget
         {
             _serverAgent = null;
             _comConnector = null;
-            _listNoAccessBase.Clear();
+            if (_listNoAccessBase != null)
+                _listNoAccessBase.Dispose();
         }
     }
 }

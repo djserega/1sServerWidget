@@ -25,4 +25,9 @@ namespace _1sServerWidget
     {
         internal RegistrykeyNotFoundException(string message) : base(message) { }
     }
+
+    internal class TerminateSessionException : Exception
+    {
+        public TerminateSessionException(string message) : base(message) { }
+    }
 }
