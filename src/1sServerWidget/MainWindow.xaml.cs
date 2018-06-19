@@ -48,7 +48,7 @@ namespace _1sServerWidget
 
             DataContext = this;
 
-            _updateStateEvents = new UpdateStateEvents();
+            _updateStateEvents = new UpdateStateEvents() { StateInPercent = true };
             _updateStateEvents.UpdateStateEvent += UpdateStateEvents_UpdateStateEvent;
 
             _updateSessionsInfoEvents = new UpdateSessionsInfoEvents();

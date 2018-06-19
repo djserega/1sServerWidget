@@ -10,21 +10,34 @@ namespace _1sServerWidget
 
     internal class UpdateStateEvents : EventArgs
     {
-        private int _countCluster;
-        private int _countWorkProcesses;
-        private int _countInfoBases;
+        string _fillStateCluster = string.Empty;
+        string _fillStateWorkProcesses = string.Empty;
+        string _fillStateInfoBase = string.Empty;
 
-        private int _iCluster;
-        private int _iWorkProcesses;
-        private int _iInfoBases;
+        private double _countCluster;
+        private double _countWorkProcesses;
+        private double _countInfoBases;
 
-        internal int CountCluster { get => _countCluster; set { _countCluster = value; EvokeUpdateStateEvent(); } }
-        internal int CountWorkProcesses { get => _countWorkProcesses; set { _countWorkProcesses = value; EvokeUpdateStateEvent(); } }
-        internal int CountInfoBase { get => _countInfoBases; set { _countInfoBases = value; EvokeUpdateStateEvent(); } }
+        private double _iCluster;
+        private double _iWorkProcesses;
+        private double _iInfoBases;
 
-        internal int ICluster { get => _iCluster; set { _iCluster = value; EvokeUpdateStateEvent(); } }
-        internal int IProcesses { get => _iWorkProcesses; set { _iWorkProcesses = value; EvokeUpdateStateEvent(); } }
-        internal int IInfoBase { get => _iInfoBases; set { _iInfoBases = value; EvokeUpdateStateEvent(); } }
+        internal double CountCluster { get => _countCluster; set { _countCluster = EvokeStateMethodChangeProperties(value); } }
+        internal double CountWorkProcesses { get => _countWorkProcesses; set { _countWorkProcesses = EvokeStateMethodChangeProperties(value); } }
+        internal double CountInfoBase { get => _countInfoBases; set { _countInfoBases = EvokeStateMethodChangeProperties(value); } }
+
+        internal double ICluster { get => _iCluster; set { _iCluster = EvokeStateMethodChangeProperties(value); } }
+        internal double IProcesses { get => _iWorkProcesses; set { _iWorkProcesses = EvokeStateMethodChangeProperties(value); } }
+        internal double IInfoBase { get => _iInfoBases; set { _iInfoBases = EvokeStateMethodChangeProperties(value); } }
+
+        private double EvokeStateMethodChangeProperties(double value)
+        {
+            EvokeUpdateStateEvent();
+
+            return value;
+        }
+
+        internal bool StateInPercent { get; set; }
 
 
         internal event UpdateStateEvent UpdateStateEvent;
@@ -54,9 +67,18 @@ namespace _1sServerWidget
         {
             StringBuilder stringBuilder = new StringBuilder();
 
-            string _fillStateCluster = _countCluster > 0 ? $"Кластеры {_iCluster}/{_countCluster}" : string.Empty;
-            string _fillStateWorkProcesses = _countWorkProcesses > 0 ? $"Рабочие процессы {_iWorkProcesses}/{_countWorkProcesses}" : string.Empty;
-            string _fillStateInfoBase = _countInfoBases> 0 ? $"Базы данных {(_iInfoBases / _countWorkProcesses)}/{(_countInfoBases / _countWorkProcesses)}" : string.Empty;
+            if (StateInPercent)
+            {
+                _fillStateCluster = _countCluster > 0 ? $"Кластеры {(int)((_iCluster / _countCluster) * 100)}%" : string.Empty;
+                _fillStateWorkProcesses = _countWorkProcesses > 0 ? $"Рабочие процессы {(int)((_iWorkProcesses / _countWorkProcesses) * 100)}%" : string.Empty;
+                _fillStateInfoBase = _countInfoBases > 0 ? $"Базы данных {(int)((_iInfoBases / _countWorkProcesses) / (_countInfoBases / _countWorkProcesses) * 100)}%" : string.Empty;
+            }
+            else
+            {
+                _fillStateCluster = _countCluster > 0 ? $"Кластеры {_iCluster}/{_countCluster}" : string.Empty;
+                _fillStateWorkProcesses = _countWorkProcesses > 0 ? $"Рабочие процессы {_iWorkProcesses}/{_countWorkProcesses}" : string.Empty;
+                _fillStateInfoBase = _countInfoBases > 0 ? $"Базы данных {(_iInfoBases / _countWorkProcesses)}/{(_countInfoBases / _countWorkProcesses)}" : string.Empty;
+            }
 
             if (!string.IsNullOrEmpty(_fillStateCluster))
             {
