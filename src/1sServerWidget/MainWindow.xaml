@@ -32,6 +32,7 @@
                 </Setter.Value>
             </Setter>
         </Style>
+        <local:ExceededThresholdConverter x:Key="ExceededThreshold" />
     </Window.Resources>
     <Border BorderThickness="1.5" CornerRadius="10" Background="LightGoldenrodYellow">
         <Border.Style>
@@ -108,7 +109,13 @@
                         <DataGridTextColumn Header="Сеансов" Binding="{Binding ConnectionCount}" Width="60"/>
                         <DataGridTextColumn Header="Соединений" Binding="{Binding SessionCount}" Width="90"/>
                         <DataGridTextColumn Header="Соединений с СУБД" Binding="{Binding DbProcInfo}" Width="120"/>
-                        <DataGridTextColumn Header="Захвачено СУБД" Binding="{Binding DbProcTook}" Width="100"/>
+                        <DataGridTextColumn Header="Захвачено СУБД" Binding="{Binding DbProcTook}" Width="100">
+                            <DataGridTextColumn.CellStyle>
+                                <Style TargetType="{x:Type DataGridCell}">
+                                    <Setter Property="Background" Value="{Binding DbProcTook, Converter={StaticResource ExceededThreshold}}" />
+                                </Style>
+                            </DataGridTextColumn.CellStyle>
+                        </DataGridTextColumn>
                     </DataGrid.Columns>
                 </DataGrid>
             </StackPanel>
