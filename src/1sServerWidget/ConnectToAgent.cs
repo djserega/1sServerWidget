@@ -88,6 +88,7 @@ namespace _1sServerWidget
                     {
                         Model.Session elemetSession = sessions[i];
 
+                        #region Disconnect
                         // Disconnect
                         //bool disconnected = false;
                         //foreach (IWorkingProcessInfo itemWorkProcess in _serverAgent.GetWorkingProcesses(itemClusterInfo))
@@ -112,7 +113,8 @@ namespace _1sServerWidget
                         //    }
                         //    if (disconnected)
                         //        break;
-                        //}
+                        //} 
+                        #endregion
 
                         // Terminate
                         foreach (ISessionInfo itemSessionInfo in _serverAgent.GetSessions(itemClusterInfo))
@@ -224,10 +226,6 @@ namespace _1sServerWidget
                         IInfoBaseConnectionInfo infoBaseConnectionComConsole = FillInfoBase(workingProcessConnection, infoBaseInfo, listInfoBasesTask);
                         if (infoBaseConnectionComConsole != null)
                             workingProcessConnection.Disconnect(infoBaseConnectionComConsole);
-                    }
-                    else
-                    {
-                        int ddd = 2;
                     }
                 }
                 _updateStateEvents.IInfoBase++;
