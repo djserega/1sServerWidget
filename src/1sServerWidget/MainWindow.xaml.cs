@@ -94,19 +94,18 @@ namespace _1sServerWidget
                 return;
 
             _updateListIsRunning = true;
+
+            if (!updateOnlySeansInfo)
+                ButtonConnect.Content = "Обновление";
+
+            ButtonConnect.IsEnabled = false;
+
             try
             {
-                if (!updateOnlySeansInfo)
-                    ButtonConnect.Content = "Обновление";
-
-                ButtonConnect.IsEnabled = false;
-
                 ConnectToAgent connectToAgent = new ConnectToAgent(_updateStateEvents, _updateSessionsInfoEvents, ServerName);
 
                 if (infoBaseUpdate != null)
                 {
-                    infoBaseUpdate.ConnectionCount = 0;
-                    infoBaseUpdate.SessionCount = 0;
                     connectToAgent.InfoBaseUpdate = infoBaseUpdate;
                     connectToAgent.SetListInfoBases(ListBases.ToList());
                 }
@@ -125,11 +124,6 @@ namespace _1sServerWidget
                 LastUpdate = DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss");
 
                 BindingOperations.GetBindingExpression(TextBlockLastUpdate, TextBlock.TextProperty).UpdateTarget();
-
-                ButtonConnect.IsEnabled = true;
-
-                if (!updateOnlySeansInfo)
-                    ButtonConnect.Content = "Подключиться";
             }
             catch (ArgumentException ex)
             {
@@ -153,6 +147,11 @@ namespace _1sServerWidget
             {
                 MessageBox.Show(ex.Message);
             }
+
+            ButtonConnect.IsEnabled = true;
+
+            if (!updateOnlySeansInfo)
+                ButtonConnect.Content = "Подключиться";
 
             DataGridListBase.ItemsSource = ListBases;
 

@@ -58,6 +58,13 @@ namespace _1sServerWidget
                 for (int i = 0; i < InfoBases.Count; i++)
                     InfoBases[i].ClearSessionInfo();
 
+            if (_updateInfoBase
+                && InfoBaseUpdate != null)
+            {
+                InfoBaseUpdate.ConnectionCount = 0;
+                InfoBaseUpdate.ClearSessionInfo();
+            }
+
             await FillInfoBasesAllClusters();
 
             if (removeBasesWhereNoAccess)
