@@ -18,6 +18,7 @@ namespace _1sServerWidget.Model
         private bool _haveAccess;
         private string _dbProcInfo;
         private float _dbProcTook;
+        private string _lastUpdate;
 
         public string Name { get => _name; set { _name = value; _nameToUpper = value.ToUpper(); SetLastUpdate(); NotifyPropertyChanged(); } }
         public string NameToUpper { get => _nameToUpper; }
@@ -28,7 +29,7 @@ namespace _1sServerWidget.Model
         public float DbProcTook { get => _dbProcTook; set { _dbProcTook = value; SetLastUpdate(); NotifyPropertyChanged(); } }
 
         public bool HaveAccess { get => _haveAccess; set { _haveAccess = value; SetLastUpdate(); NotifyPropertyChanged(); } }
-        public string LastUpdate { get; private set; }
+        public string LastUpdate { get => _lastUpdate; }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -46,7 +47,20 @@ namespace _1sServerWidget.Model
 
         private void SetLastUpdate()
         {
-            LastUpdate = DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss");
+            _lastUpdate = DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss");
+        }
+
+        internal void Fill(InfoBase infoBase)
+        {
+            _name = infoBase.Name;
+            _nameToUpper = infoBase.NameToUpper;
+            _descr = infoBase.Descr;
+            _connectionCount = infoBase.ConnectionCount;
+            _sessionCount = infoBase.SessionCount;
+            _haveAccess = infoBase.HaveAccess;
+            _dbProcInfo = infoBase.DbProcInfo;
+            _dbProcTook = infoBase.DbProcTook;
+            SetLastUpdate();
         }
 
         internal void ClearSessionInfo()

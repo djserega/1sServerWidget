@@ -115,11 +115,8 @@ namespace _1sServerWidget
 
                 await connectToAgent.GetListBaseAsync();
 
-                _listBases.Clear();
-                foreach (Model.InfoBase item in connectToAgent.InfoBases)
-                {
-                    _listBases.Add(item);
-                };
+                RefreshDataContextListBase(connectToAgent.InfoBases);
+
                 LastUpdate = DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss");
 
                 BindingOperations.GetBindingExpression(TextBlockLastUpdate, TextBlock.TextProperty).UpdateTarget();
@@ -155,6 +152,32 @@ namespace _1sServerWidget
             StartStopUpdateSession();
 
             _updateListIsRunning = false;
+        }
+
+        private void RefreshDataContextListBase(List<Model.InfoBase> newListBases)
+        {      
+            List<Model.InfoBase> deletingRow = new List<Model.InfoBase>();
+            foreach (Model.InfoBase itemRow in _listBases)
+            {
+                Model.InfoBase newInfoBase = newListBases.FirstOrDefault(f => f.NameToUpper == itemRow.NameToUpper);
+                if (newInfoBase == null)
+                {
+                    deletingRow.Add(itemRow);
+                }
+                else
+                {
+                    itemRow.Fill(newInfoBase);
+                    newListBases.Remove(newInfoBase);
+                }
+            }
+            foreach (Model.InfoBase item in deletingRow)
+            {
+                _listBases.Remove(item);
+            }
+            foreach (Model.InfoBase item in newListBases)
+            {
+                _listBases.Add(item);
+            }
         }
 
         private void MenuItemUpdateInfo_Click(object sender, RoutedEventArgs e)
