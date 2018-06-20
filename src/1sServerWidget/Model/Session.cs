@@ -4,23 +4,32 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 
 namespace _1sServerWidget.Model
 {
-    public class Session
+    public class Session : INotifyPropertyChanged
     {
-        public IClusterInfo ClusterInfo { get;}
-        public IInfoBaseShort InfoBaseShort { get; }
-        public ISessionInfo SessionInfo { get; }
-        public string AppID { get; }
-        public int SessionID { get; }
-        public string UserName { get; }
-        public IWorkingProcessInfo Process { get;  }
-        public IConnectionShort Connection { get; }
-        public float DbProcTook { get; }
-        public string DbProcInfo { get; }
-        public DateTime StartedAt { get; }
-        public int ConnID { get; }
+        public IClusterInfo ClusterInfo { get; private set; }
+        public IInfoBaseShort InfoBaseShort { get; private set; }
+        public ISessionInfo SessionInfo { get; private set; }
+        public string AppID { get; private set; }
+        public int SessionID { get; private set; }
+        public string UserName { get; private set; }
+        public IWorkingProcessInfo Process { get; private set; }
+        public IConnectionShort Connection { get; private set; }
+        public float DbProcTook { get; private set; }
+        public string DbProcInfo { get; private set; }
+        public DateTime StartedAt { get; private set; }
+        public int ConnID { get; private set; }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
 
         public Session(IClusterInfo clusterInfo, ISessionInfo sessionInfo)
         {
@@ -36,6 +45,22 @@ namespace _1sServerWidget.Model
             DbProcTook = ((float)sessionInfo.dbProcTook / 1000);
             StartedAt = sessionInfo.StartedAt;
             ConnID = Connection == null ? 0 : Connection.ConnID;
+        }
+
+        internal void Fill(Session session)
+        {
+            ClusterInfo = session.ClusterInfo;
+            InfoBaseShort = session.InfoBaseShort;
+            SessionInfo = session.SessionInfo;
+            AppID = session.AppID;
+            SessionID = session.SessionID;
+            UserName = session.UserName;
+            Process = session.Process;
+            Connection = session.Connection;
+            DbProcTook = session.DbProcTook;
+            DbProcInfo = session.DbProcInfo;
+            StartedAt = session.StartedAt;
+            ConnID = session.ConnID;
         }
     }
 }

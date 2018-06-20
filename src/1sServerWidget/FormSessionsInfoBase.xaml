@@ -62,7 +62,7 @@
                     <Button x:Name="ButtonClose" Content="Закрыть" Style="{StaticResource ButtonBase}" Click="ButtonClose_Click"/>
                 </StackPanel>
                 <Grid Margin="5,1,5,0">
-                    <DataGrid x:Name="DataGridSessions" IsReadOnly="True" BorderThickness="0" AutoGenerateColumns="False" Background="Transparent" RowBackground="Transparent"
+                    <DataGrid x:Name="DataGridSessions" IsReadOnly="True" ItemsSource="{Binding ElementName=WindowSessionInfoBase, Path=DataContext.Sessions}" BorderThickness="0" AutoGenerateColumns="False" Background="Transparent" RowBackground="Transparent"
                               CanUserResizeColumns="False" CanUserSortColumns="False" CanUserReorderColumns="False" CanUserResizeRows="False"
                               Height="{Binding ElementName=WindowSessionInfoBase, Path=ActualHeight, Converter={local:ElementsFormConverter}, ConverterParameter=60}">
                         <DataGrid.ContextMenu>

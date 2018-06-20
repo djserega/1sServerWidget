@@ -32,8 +32,10 @@ namespace _1sServerWidget
             }
         }
 
-        private ObservableCollection<Model.Session> Sessions = new ObservableCollection<Model.Session>();
+        private readonly ObservableCollection<Model.Session> _sessions = new ObservableCollection<Model.Session>();
         private readonly string[] _listNotTerminatedAppIDSessions = new string[4] { "BackgroundJob", "Designer", "COMConsole", "SrvrConsole" };
+
+        public ObservableCollection<Model.Session> Sessions { get => _sessions; }
 
         private void _updateSessionsInfoEvents_UpdateSessionsInfoEvent()
         {
@@ -57,11 +59,34 @@ namespace _1sServerWidget
         {
             Dispatcher.Invoke(new ThreadStart(delegate
             {
-                Sessions.Clear();
-                foreach (Model.Session item in InfoBase.ListSessions)
-                    Sessions.Add(item);
-                DataGridSessions.ItemsSource = Sessions;
+                RefreshDataContextListBase(InfoBase.ListSessions.ToList());
             }));
+        }
+
+        private void RefreshDataContextListBase(List<Model.Session> newListBases)
+        {
+            List<Model.Session> deletingRow = new List<Model.Session>();
+            foreach (Model.Session item in _sessions)
+            {
+                Model.Session newInfoBase = newListBases.FirstOrDefault(f => f.ConnID == item.ConnID);
+                if (newInfoBase == null)
+                {
+                    deletingRow.Add(item);
+                }
+                else
+                {
+                    item.Fill(newInfoBase);
+                    newListBases.Remove(newInfoBase);
+                }
+            }
+            foreach (Model.Session item in deletingRow)
+            {
+                _sessions.Remove(item);
+            }
+            foreach (Model.Session item in newListBases)
+            {
+                _sessions.Add(item);
+            }
         }
 
         private void ButtonClose_Click(object sender, RoutedEventArgs e)
