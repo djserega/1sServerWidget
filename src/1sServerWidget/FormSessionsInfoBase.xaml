@@ -73,8 +73,8 @@
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Приложение" Binding="{Binding AppID}" MaxWidth="90"/>
                             <DataGridTextColumn Header="№ сеанса" Binding="{Binding SessionID}" MaxWidth="70"/>
-                            <DataGridTextColumn Header="Пользователь" Binding="{Binding UserName}" MaxWidth="170"/>
-                            <DataGridTextColumn Header="Соединений" Binding="{Binding DbProcInfo}" MaxWidth="80"/>
+                            <DataGridTextColumn Header="Пользователь" Binding="{Binding UserName}" MaxWidth="250"/>
+                            <!--<DataGridTextColumn Header="Соединений" Binding="{Binding DbProcInfo}" MaxWidth="80"/>-->
                             <DataGridTextColumn Header="Захвачено" Binding="{Binding DbProcTook}" MaxWidth="70">
                                 <DataGridTextColumn.CellStyle>
                                     <Style TargetType="{x:Type DataGridCell}">

@@ -3,8 +3,9 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:_1sServerWidget" ResizeMode="NoResize"
-        mc:Ignorable="d" WindowStyle="None" AllowsTransparency="True"
+        xmlns:local="clr-namespace:_1sServerWidget"
+        xmlns:localModel="clr-namespace:_1sServerWidget.Model"
+        ResizeMode="NoResize" mc:Ignorable="d" WindowStyle="None" AllowsTransparency="True"
         Title="MainWindow" Height="350" Width="560" Background="Transparent"
         x:Name="FormMainWindow" ShowInTaskbar="False" Topmost="True"
         MouseLeftButtonDown="FormMainWindow_MouseLeftButtonDown">
@@ -94,6 +95,7 @@
             <StackPanel x:Name="StackPanelDataGrid" Orientation="Vertical" Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="2">
                 <Separator Width="1" Background="{x:Null}"/>
                 <DataGrid x:Name="DataGridListBase" IsReadOnly="True" BorderThickness="0"
+                          ItemsSource="{Binding ElementName=FormMainWindow, Path=DataContext.ListBases}"
                           CanUserResizeColumns="False" CanUserSortColumns="False" CanUserReorderColumns="False" CanUserResizeRows="False"
                           AutoGenerateColumns="False" Background="Transparent" RowBackground="Transparent"
                           Height="{Binding ElementName=StackPanelDataGrid, Path=ActualHeight, Converter={local:ElementsFormConverter}, ConverterParameter=10}"
@@ -108,7 +110,7 @@
                         <DataGridTextColumn Header="Имя базы данных" Binding="{Binding Name}" Width="140"/>
                         <DataGridTextColumn Header="Сеансов" Binding="{Binding ConnectionCount}" Width="60"/>
                         <DataGridTextColumn Header="Соединений" Binding="{Binding SessionCount}" Width="90"/>
-                        <DataGridTextColumn Header="Соединений с СУБД" Binding="{Binding DbProcInfo}" Width="120"/>
+                        <!--<DataGridTextColumn Header="Соединений с СУБД" Binding="{Binding DbProcInfo}" Width="120"/>-->
                         <DataGridTextColumn Header="Захвачено СУБД" Binding="{Binding DbProcTook}" Width="100">
                             <DataGridTextColumn.CellStyle>
                                 <Style TargetType="{x:Type DataGridCell}">

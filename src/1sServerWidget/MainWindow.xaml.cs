@@ -29,8 +29,9 @@ namespace _1sServerWidget
         private int _minUpdateSession;
         private timers.Timer _timer = new timers.Timer();
         private bool _updateListIsRunning;
+        private readonly ObservableCollection<Model.InfoBase> _listBases = new ObservableCollection<Model.InfoBase>();
 
-        public ObservableCollection<Model.InfoBase> ListBases { get; private set; }
+        public ObservableCollection<Model.InfoBase> ListBases { get => _listBases; }
         public string ServerName { get; set; }
         public string TextState { get; private set; }
         public string LastUpdate { get; private set; }
@@ -43,8 +44,6 @@ namespace _1sServerWidget
             DefaultValue defaultValue = new DefaultValue();
             ServerName = defaultValue.ServerName;
             _minUpdateSession = defaultValue.MinUpdateSession;
-
-            ListBases = new ObservableCollection<Model.InfoBase>();
 
             DataContext = this;
 
@@ -107,19 +106,19 @@ namespace _1sServerWidget
                 if (infoBaseUpdate != null)
                 {
                     connectToAgent.InfoBaseUpdate = infoBaseUpdate;
-                    connectToAgent.SetListInfoBases(ListBases.ToList());
+                    connectToAgent.SetListInfoBases(_listBases.ToList());
                 }
                 else if (updateOnlySeansInfo)
-                    connectToAgent.SetListInfoBases(ListBases.ToList());
+                    connectToAgent.SetListInfoBases(_listBases.ToList());
 
                 connectToAgent.UpdateOnlySeansInfo = updateOnlySeansInfo;
 
                 await connectToAgent.GetListBaseAsync();
 
-                ListBases.Clear();
+                _listBases.Clear();
                 foreach (Model.InfoBase item in connectToAgent.InfoBases)
                 {
-                    ListBases.Add(item);
+                    _listBases.Add(item);
                 };
                 LastUpdate = DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss");
 
@@ -153,8 +152,6 @@ namespace _1sServerWidget
             if (!updateOnlySeansInfo)
                 ButtonConnect.Content = "Подключиться";
 
-            DataGridListBase.ItemsSource = ListBases;
-
             StartStopUpdateSession();
 
             _updateListIsRunning = false;
@@ -176,7 +173,7 @@ namespace _1sServerWidget
 
         private void StartStopUpdateSession()
         {
-            if (_minUpdateSession == 0 || ListBases.Count == 0)
+            if (_minUpdateSession == 0 || _listBases.Count == 0)
             {
                 _timer.Stop();
                 BorderMinUpdateSession.Background = new SolidColorBrush();

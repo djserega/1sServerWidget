@@ -249,8 +249,8 @@ namespace _1sServerWidget
             }
             catch (Exception)
             {
-                if (ListNoAccessBase.ListName.FirstOrDefault(f => f == infoBaseInfo.Name.ToUpper()) == null)
-                    ListNoAccessBase.ListName.Add(infoBaseInfo.Name.ToUpper());
+                //if (ListNoAccessBase.ListName.FirstOrDefault(f => f == infoBaseInfo.Name.ToUpper()) == null)
+                //    ListNoAccessBase.ListName.Add(infoBaseInfo.Name.ToUpper());
 
                 haveAccess = false;
             }
