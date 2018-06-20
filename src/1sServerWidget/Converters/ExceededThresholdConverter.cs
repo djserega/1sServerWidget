@@ -15,16 +15,16 @@ namespace _1sServerWidget
             if (floatValue >= 15)
                 return new SolidColorBrush(Colors.Red);
             else if (floatValue >= 10)
-                return new SolidColorBrush(Colors.Yellow);
-            else if (floatValue >= 5)
                 return new SolidColorBrush(Colors.LimeGreen);
+            else if (floatValue >= 5)
+                return new SolidColorBrush(Colors.Yellow); 
             else
-                return new SolidColorBrush();
+                return new SolidColorBrush(Colors.Transparent);
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            return new SolidColorBrush();
+            return new SolidColorBrush(Colors.Transparent);
         }
 
         private float ToFloat(object value)
