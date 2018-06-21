@@ -36,6 +36,7 @@ namespace _1sServerWidget
         public string TextState { get; private set; }
         public string LastUpdate { get; private set; }
         public int MinUpdateSession { get => _minUpdateSession; set { _minUpdateSession = value; StartStopUpdateSession(); } }
+        public int ValueProgressBar { get; set; }
 
         public MainWindow()
         {
@@ -47,7 +48,7 @@ namespace _1sServerWidget
 
             DataContext = this;
 
-            _updateStateEvents = new UpdateStateEvents() { StateInPercent = true };
+            _updateStateEvents = new UpdateStateEvents() { TypeState = StateTypes.StatusBar };
             _updateStateEvents.UpdateStateEvent += UpdateStateEvents_UpdateStateEvent;
 
             _updateSessionsInfoEvents = new UpdateSessionsInfoEvents();
@@ -62,12 +63,17 @@ namespace _1sServerWidget
 
         private void UpdateStateEvents_UpdateStateEvent()
         {
-            TextState = _updateStateEvents.GetState();
+            int ValueProgressBarNew = _updateStateEvents.GetStateStatusBar();
 
-            Dispatcher.Invoke(new ThreadStart(delegate
+            if (ValueProgressBar != ValueProgressBarNew)
             {
-                BindingOperations.GetBindingExpression(TextBlockState, TextBlock.TextProperty).UpdateTarget();
-            }));
+                ValueProgressBar = ValueProgressBarNew;
+
+                Dispatcher.Invoke(new ThreadStart(delegate
+                {
+                    BindingOperations.GetBindingExpression(ProgressBar, ProgressBar.ValueProperty).UpdateTarget();
+                }));
+            }
         }
 
         private void ButtonClose_Click(object sender, RoutedEventArgs e)

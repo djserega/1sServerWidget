@@ -76,6 +76,7 @@
     </Compile>
     <Compile Include="ConnectToAgent.cs" />
     <Compile Include="Converters\ElementsFormConverter.cs" />
+    <Compile Include="Enums.cs" />
     <Compile Include="Events.cs" />
     <Compile Include="Exception.cs" />
     <Compile Include="FormSessionsInfoBase.xaml.cs">

@@ -37,7 +37,7 @@ namespace _1sServerWidget
             return value;
         }
 
-        internal bool StateInPercent { get; set; }
+        internal StateTypes TypeState { get; set; }
 
 
         internal event UpdateStateEvent UpdateStateEvent;
@@ -67,17 +67,18 @@ namespace _1sServerWidget
         {
             StringBuilder stringBuilder = new StringBuilder();
 
-            if (StateInPercent)
+            switch (TypeState)
             {
-                _fillStateCluster = _countCluster > 0 ? $"Кластеры {(int)((_iCluster / _countCluster) * 100)}%" : string.Empty;
-                _fillStateWorkProcesses = _countWorkProcesses > 0 ? $"Рабочие процессы {(int)((_iWorkProcesses / _countWorkProcesses) * 100)}%" : string.Empty;
-                _fillStateInfoBase = _countInfoBases > 0 ? $"Базы данных {(int)((_iInfoBases / _countWorkProcesses) / (_countInfoBases / _countWorkProcesses) * 100)}%" : string.Empty;
-            }
-            else
-            {
-                _fillStateCluster = _countCluster > 0 ? $"Кластеры {_iCluster}/{_countCluster}" : string.Empty;
-                _fillStateWorkProcesses = _countWorkProcesses > 0 ? $"Рабочие процессы {_iWorkProcesses}/{_countWorkProcesses}" : string.Empty;
-                _fillStateInfoBase = _countInfoBases > 0 ? $"Базы данных {(_iInfoBases / _countWorkProcesses)}/{(_countInfoBases / _countWorkProcesses)}" : string.Empty;
+                case StateTypes.Persent:
+                    _fillStateCluster = _countCluster > 0 ? $"Кластеры {(int)((_iCluster / _countCluster) * 100)}%" : string.Empty;
+                    _fillStateWorkProcesses = _countWorkProcesses > 0 ? $"Рабочие процессы {(int)((_iWorkProcesses / _countWorkProcesses) * 100)}%" : string.Empty;
+                    _fillStateInfoBase = _countInfoBases > 0 ? $"Базы данных {(int)((_iInfoBases / _countWorkProcesses) / (_countInfoBases / _countWorkProcesses) * 100)}%" : string.Empty;
+                    break;
+                default:
+                    _fillStateCluster = _countCluster > 0 ? $"Кластеры {_iCluster}/{_countCluster}" : string.Empty;
+                    _fillStateWorkProcesses = _countWorkProcesses > 0 ? $"Рабочие процессы {_iWorkProcesses}/{_countWorkProcesses}" : string.Empty;
+                    _fillStateInfoBase = _countInfoBases > 0 ? $"Базы данных {(_iInfoBases / _countWorkProcesses)}/{(_countInfoBases / _countWorkProcesses)}" : string.Empty;
+                    break;
             }
 
             if (!string.IsNullOrEmpty(_fillStateCluster))
@@ -97,6 +98,20 @@ namespace _1sServerWidget
             }
 
             return stringBuilder.ToString();
+        }
+        internal int GetStateStatusBar()
+        {
+            StringBuilder stringBuilder = new StringBuilder();
+
+            if (TypeState != StateTypes.StatusBar)
+                return 0;
+
+            double currentState = _iCluster + _iWorkProcesses + _iInfoBases;
+            double allState = _countCluster + _countWorkProcesses + _countInfoBases;
+
+            int progress = (int)(currentState * 100 / allState);
+
+            return progress;
         }
     }
 
