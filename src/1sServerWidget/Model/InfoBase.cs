@@ -1,15 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace _1sServerWidget.Model
 {
     public class InfoBase : INotifyPropertyChanged
     {
+
+        #region Constructor
+
+        public InfoBase()
+        {
+            ListSessions = new List<Session>();
+        }
+
+        #endregion
+
+        #region Fields
+
         private string _name;
         private string _nameToUpper;
         private string _descr;
@@ -19,6 +28,10 @@ namespace _1sServerWidget.Model
         private string _dbProcInfo;
         private float _dbProcTook;
         private string _lastUpdate;
+
+        #endregion
+
+        #region Properties
 
         public string Name { get => _name; set { _name = value; _nameToUpper = value.ToUpper(); SetLastUpdate(); NotifyPropertyChanged(); } }
         public string NameToUpper { get => _nameToUpper; }
@@ -31,24 +44,21 @@ namespace _1sServerWidget.Model
         public bool HaveAccess { get => _haveAccess; set { _haveAccess = value; SetLastUpdate(); NotifyPropertyChanged(); } }
         public string LastUpdate { get => _lastUpdate; }
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        internal List<Session> ListSessions { get; set; }
 
+        #endregion
+
+        #region Event changed
+
+        public event PropertyChangedEventHandler PropertyChanged;
         private void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        internal List<Session> ListSessions { get; set; }
+        #endregion
 
-        public InfoBase()
-        {
-            ListSessions = new List<Session>();
-        }
-
-        private void SetLastUpdate()
-        {
-            _lastUpdate = DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss");
-        }
+        #region Internal methods
 
         internal void Fill(InfoBase infoBase)
         {
@@ -71,9 +81,25 @@ namespace _1sServerWidget.Model
             ListSessions.Clear();
         }
 
+        #endregion
+
+        #region Public methods
+
         public override string ToString()
         {
             return Name;
         }
+
+        #endregion
+
+        #region Private methods
+
+        private void SetLastUpdate()
+        {
+            _lastUpdate = DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss");
+        }
+
+        #endregion
+
     }
 }

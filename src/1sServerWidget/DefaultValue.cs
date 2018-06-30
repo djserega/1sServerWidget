@@ -1,24 +1,12 @@
 ﻿using Microsoft.Win32;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace _1sServerWidget
 {
     internal class DefaultValue
     {
-        private readonly string _prefixRegistrySoftware;
-        private readonly string _prefixKeyApplication;
-        private readonly string _prefixRegistryKey;
-
-        private RegistryKey _registryKeyApplication;
-        private RegistryKey _registryKeyApplicationValues;
-        private readonly bool _initialize;
-
-        internal string ServerName { get; set; }
-        internal int MinUpdateSession { get; set; }
+        #region Constructors
 
         internal DefaultValue()
         {
@@ -41,6 +29,29 @@ namespace _1sServerWidget
 
             _initialize = false;
         }
+
+        #endregion
+
+        #region Fields
+
+        private readonly string _prefixRegistrySoftware;
+        private readonly string _prefixKeyApplication;
+        private readonly string _prefixRegistryKey;
+
+        private RegistryKey _registryKeyApplication;
+        private RegistryKey _registryKeyApplicationValues;
+        private readonly bool _initialize;
+
+        #endregion
+
+        #region Properties
+
+        internal string ServerName { get; set; }
+        internal int MinUpdateSession { get; set; }
+
+        #endregion
+
+        #region Internal methods
 
         internal void GetDefaultSettings()
         {
@@ -97,7 +108,7 @@ namespace _1sServerWidget
 
         internal void SetValueByKey(string key)
         {
-                switch (key)
+            switch (key)
             {
                 case "ServerName":
                     SetDefaultSettings("ServerName");
@@ -109,6 +120,10 @@ namespace _1sServerWidget
                     throw new ArgumentException("Не удалось найти свойство.", "Имя ключа");
             }
         }
+
+        #endregion
+
+        #region Private methods
 
         private string GetValue(string keyName) => _registryKeyApplication.GetValue(keyName).ToString();
 
@@ -124,5 +139,8 @@ namespace _1sServerWidget
             if (!string.IsNullOrWhiteSpace(names.FirstOrDefault(f => f == key)) || _initialize)
                 SetValue(key, value.ToString());
         }
+
+        #endregion
+
     }
 }

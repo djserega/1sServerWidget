@@ -1,27 +1,14 @@
-﻿using V83;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using System.Collections.Concurrent;
+using V83;
 
 namespace _1sServerWidget
 {
     internal class ConnectToAgent : IDisposable
     {
-        private UpdateStateEvents _updateStateEvents;
-        private UpdateSessionsInfoEvents _updateSessionsInfoEvents;
-
-        private readonly string _serverName;
-        private COMConnector _comConnector;
-        private IServerAgentConnection _serverAgent;
-        private bool _updateInfoBase;
-        private List<Model.InfoBase> _infoBases = new List<Model.InfoBase>();
-
-        internal List<Model.InfoBase> InfoBases { get => _infoBases; private set => _infoBases = value; }
-        internal Model.InfoBase InfoBaseUpdate { get; set; }
-        internal bool UpdateOnlySeansInfo { get; set; }
+        #region Constructors
 
         internal ConnectToAgent(string serverName)
         {
@@ -34,6 +21,31 @@ namespace _1sServerWidget
             _updateSessionsInfoEvents = updateSessionsInfoEvents;
             _serverName = serverName;
         }
+
+        #endregion
+
+        #region Fields
+
+        private UpdateStateEvents _updateStateEvents;
+        private UpdateSessionsInfoEvents _updateSessionsInfoEvents;
+
+        private readonly string _serverName;
+        private COMConnector _comConnector;
+        private IServerAgentConnection _serverAgent;
+        private bool _updateInfoBase;
+        private List<Model.InfoBase> _infoBases = new List<Model.InfoBase>();
+
+        #endregion
+
+        #region Properties
+
+        internal List<Model.InfoBase> InfoBases { get => _infoBases; private set => _infoBases = value; }
+        internal Model.InfoBase InfoBaseUpdate { get; set; }
+        internal bool UpdateOnlySeansInfo { get; set; }
+
+        #endregion
+
+        #region Internal methods
 
         internal async Task GetListBaseAsync()
         {
@@ -141,7 +153,9 @@ namespace _1sServerWidget
 
         }
 
-        #region Get info
+        #endregion
+
+        #region Private methods. Get info
 
         private async Task FillInfoBasesAllClusters()
         {
@@ -301,6 +315,8 @@ namespace _1sServerWidget
 
         #endregion
 
+        #region Private methods
+
         private IWorkingProcessConnection GetWorkingProcessConnection(IWorkingProcessInfo workProcess)
         {
             IWorkingProcessConnection workingProcessConnection;
@@ -351,11 +367,18 @@ namespace _1sServerWidget
             workingProcessConnection.AddAuthentication("", "");
         }
 
+        #endregion
+
+        #region IDisposable
+
         public void Dispose()
         {
             _serverAgent = null;
             _comConnector = null;
             ListNoAccessBase.List.Clear();
         }
+
+        #endregion
+
     }
 }

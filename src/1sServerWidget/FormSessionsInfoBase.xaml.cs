@@ -126,15 +126,16 @@ namespace _1sServerWidget
 
             if (listTerminateSessions.Count > 0)
             {
-                ConnectToAgent connector = new ConnectToAgent(((MainWindow)Owner).ServerName);
-
-                try
+                using (ConnectToAgent connector = new ConnectToAgent(((MainWindow)Owner).ServerName))
                 {
-                    connector.TerminateSessions(listTerminateSessions);
-                }
-                catch (TerminateSessionException ex)
-                {
-                    MessageBox.Show($"Ошибка завершения сеанса\n{ex.Message}");
+                    try
+                    {
+                        connector.TerminateSessions(listTerminateSessions);
+                    }
+                    catch (TerminateSessionException ex)
+                    {
+                        MessageBox.Show($"Ошибка завершения сеанса\n{ex.Message}");
+                    }
                 }
             }
         }

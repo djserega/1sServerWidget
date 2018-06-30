@@ -6,13 +6,19 @@ using System.Threading.Tasks;
 
 namespace _1sServerWidget
 {
+    #region UpdateStateEvent
+
     internal delegate void UpdateStateEvent();
 
     internal class UpdateStateEvents : EventArgs
     {
-        string _fillStateCluster = string.Empty;
-        string _fillStateWorkProcesses = string.Empty;
-        string _fillStateInfoBase = string.Empty;
+        internal event UpdateStateEvent UpdateStateEvent;
+
+        #region Fields
+
+        private string _fillStateCluster = string.Empty;
+        private string _fillStateWorkProcesses = string.Empty;
+        private string _fillStateInfoBase = string.Empty;
 
         private double _countCluster;
         private double _countWorkProcesses;
@@ -22,6 +28,10 @@ namespace _1sServerWidget
         private double _iWorkProcesses;
         private double _iInfoBases;
 
+        #endregion
+
+        #region Properties
+
         internal double CountCluster { get => _countCluster; set { _countCluster = EvokeStateMethodChangeProperties(value); } }
         internal double CountWorkProcesses { get => _countWorkProcesses; set { _countWorkProcesses = EvokeStateMethodChangeProperties(value); } }
         internal double CountInfoBase { get => _countInfoBases; set { _countInfoBases = EvokeStateMethodChangeProperties(value); } }
@@ -30,25 +40,11 @@ namespace _1sServerWidget
         internal double IProcesses { get => _iWorkProcesses; set { _iWorkProcesses = EvokeStateMethodChangeProperties(value); } }
         internal double IInfoBase { get => _iInfoBases; set { _iInfoBases = EvokeStateMethodChangeProperties(value); } }
 
-        private double EvokeStateMethodChangeProperties(double value)
-        {
-            EvokeUpdateStateEvent();
-
-            return value;
-        }
-
         internal StateTypes TypeState { get; set; }
 
+        #endregion
 
-        internal event UpdateStateEvent UpdateStateEvent;
-
-        internal void EvokeUpdateStateEvent()
-        {
-            if (UpdateStateEvent == null)
-                return;
-
-            UpdateStateEvent();
-        }
+        #region Internal methods
 
         internal void ClearState()
         {
@@ -99,6 +95,7 @@ namespace _1sServerWidget
 
             return stringBuilder.ToString();
         }
+
         internal int GetStateStatusBar()
         {
             StringBuilder stringBuilder = new StringBuilder();
@@ -113,8 +110,33 @@ namespace _1sServerWidget
 
             return progress;
         }
+
+        #endregion
+
+        #region Private methods
+
+        private double EvokeStateMethodChangeProperties(double value)
+        {
+            EvokeUpdateStateEvent();
+
+            return value;
+        }
+
+        private void EvokeUpdateStateEvent()
+        {
+            if (UpdateStateEvent == null)
+                return;
+
+            UpdateStateEvent();
+        }
+
+        #endregion
+
     }
 
+    #endregion
+
+    #region UpdateSessionsInfoEvent
 
     internal delegate void UpdateSessionsInfoEvent();
 
@@ -132,4 +154,5 @@ namespace _1sServerWidget
             UpdateSessionsInfoEvent();
         }
     }
+    #endregion
 }
