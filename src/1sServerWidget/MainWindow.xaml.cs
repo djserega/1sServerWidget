@@ -235,5 +235,14 @@ namespace _1sServerWidget
                 }
             }
         }
+
+        private void TextBoxServerName_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                new DefaultValue() { ServerName = ServerName }.SetValueByKey("ServerName");
+                GetListBases();
+            }
+        }
     }
 }
